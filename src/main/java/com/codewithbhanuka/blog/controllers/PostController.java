@@ -56,7 +56,7 @@ public class PostController {
         return new ResponseEntity<PostDto>(onepost, HttpStatus.OK);
     }
 
-    // pagination added
+    // pagination added hi
     @GetMapping("/posts")
     public ResponseEntity<List<PostDto>> getAllPost(
             //parameter
