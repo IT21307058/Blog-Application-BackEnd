@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 // you want to remember only add column to post table
 @Entity
@@ -31,4 +33,9 @@ public class Post {
 
     @ManyToOne
     private User user;
+
+    //in hashset not order and not key value pair, no duplicated in
+    //hash set
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private Set<Comment> comments = new HashSet<>();
 }

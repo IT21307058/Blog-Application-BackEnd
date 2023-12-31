@@ -1,11 +1,14 @@
 package com.codewithbhanuka.blog.payloads;
 
 
+import com.codewithbhanuka.blog.entities.Comment;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -21,6 +24,9 @@ public class PostDto {
     // dto class eka thmi danna oni methnata
     private CategoryDto category;
     private UserDto user;
+
+    //comment list
+    private Set<CommentDto> comments = new HashSet<>();
 
 
 
