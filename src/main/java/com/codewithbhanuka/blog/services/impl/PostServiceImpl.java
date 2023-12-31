@@ -5,6 +5,7 @@ import com.codewithbhanuka.blog.entities.Post;
 import com.codewithbhanuka.blog.entities.User;
 import com.codewithbhanuka.blog.exception.ResourceNotFoundException;
 import com.codewithbhanuka.blog.payloads.PostDto;
+import com.codewithbhanuka.blog.payloads.PostResponse;
 import com.codewithbhanuka.blog.repositories.CategoryRepo;
 import com.codewithbhanuka.blog.repositories.PostRepo;
 import com.codewithbhanuka.blog.repositories.UserRepo;
@@ -16,6 +17,7 @@ import org.springframework.boot.Banner;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -75,14 +77,25 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostDto> getAllPost(Integer pageNumber, Integer pageSize) {
+    public PostResponse getAllPost(Integer pageNumber, Integer pageSize, String sortBy, String sortDir) {
+
+        Sort sort = null;
+
+        //using param decide asc or desc
+        if(sortDir.equalsIgnoreCase("asc")){
+            sort = Sort.by(sortBy).ascending();
+        }else{
+            sort = Sort.by(sortBy).descending();
+        }
         // pagination
         //by default
 //        int pageSize = 5;
 //        int pageNumber = 1;
 
-        // 1 page 5 records
-        Pageable p = PageRequest.of(pageNumber, pageSize);
+        // 1 page 5 records and also sort by post id using
+        //this function ####Important
+        //Sort.by(sortBy).descending() we can make descending order
+        Pageable p = PageRequest.of(pageNumber, pageSize, sort);
 
 //        List<Post> posts = this.postRepo.findAll();
 
@@ -92,7 +105,18 @@ public class PostServiceImpl implements PostService {
         List<Post> allposts = pagepost.getContent();
 
         List<PostDto> postDtos = allposts.stream().map((post) -> this.modelMapper.map(post, PostDto.class)).collect(Collectors.toList());
-        return postDtos;
+
+        PostResponse postResponse = new PostResponse();
+
+        postResponse.setContent(postDtos);
+        //no of size in page
+        postResponse.setPageNumber(pagepost.getNumber());
+        postResponse.setPageSize(pagepost.getSize());
+        postResponse.setTotalElements(pagepost.getTotalElements());
+        postResponse.setTotalPages(pagepost.getTotalPages());
+        postResponse.setLastPage(pagepost.isLast());
+
+        return postResponse;
     }
 
     @Override
@@ -122,7 +146,11 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<Post> searchPost(String keyword) {
-        return null;
+    public List<PostDto> searchPost(String keyword) {
+        List<Post> posts = this.postRepo.searchByTitle("%" + keyword + "%");
+        List<PostDto> postDtos = posts.stream().map((post)-> this.modelMapper.map(post, PostDto.class)).collect(Collectors.toList());
+
+
+        return postDtos;
     }
 }

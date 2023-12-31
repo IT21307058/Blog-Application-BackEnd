@@ -1,8 +1,10 @@
 package com.codewithbhanuka.blog.controllers;
 
+import com.codewithbhanuka.blog.config.AppConstants;
 import com.codewithbhanuka.blog.entities.Post;
 import com.codewithbhanuka.blog.payloads.ApiResponse;
 import com.codewithbhanuka.blog.payloads.PostDto;
+import com.codewithbhanuka.blog.payloads.PostResponse;
 import com.codewithbhanuka.blog.services.PostService;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -58,14 +60,16 @@ public class PostController {
 
     // pagination added hi
     @GetMapping("/posts")
-    public ResponseEntity<List<PostDto>> getAllPost(
+    public ResponseEntity<PostResponse> getAllPost(
             //parameter
-            @RequestParam (value = "pageNumber", defaultValue = "1", required = false) Integer pageNumber,
-            @RequestParam (value = "pageSize", defaultValue = "5", required = false) Integer pageSize
+            @RequestParam (value = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+            @RequestParam (value = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam (value="sortBy", defaultValue = AppConstants.SORT_BY, required = false) String sortBy,
+            @RequestParam (value = "sortDir", defaultValue = AppConstants.SORT_DIR, required = false) String sortDir
      ){
-        List<PostDto> allpost = this.postService.getAllPost(pageNumber, pageSize);
+        PostResponse postResponse = this.postService.getAllPost(pageNumber, pageSize, sortBy, sortDir);
 
-        return new ResponseEntity<List<PostDto>>(allpost, HttpStatus.OK);
+        return new ResponseEntity<PostResponse>(postResponse, HttpStatus.OK);
     }
 
     //delete post
@@ -80,5 +84,15 @@ public class PostController {
     public ResponseEntity<PostDto> updatePost(@RequestBody PostDto postDto, @PathVariable Integer postId){
         PostDto updatepostDto = this.postService.updatePost(postDto, postId);
         return new ResponseEntity<PostDto>(updatepostDto, HttpStatus.OK);
+    }
+
+
+    @GetMapping("/posts/search/{keywords}")
+    public ResponseEntity<List<PostDto>> searchPostByTitle(
+            @PathVariable String keywords
+    ){
+        List<PostDto> result = this.postService.searchPost(keywords);
+
+        return new ResponseEntity<List<PostDto>>(result, HttpStatus.OK);
     }
 }
